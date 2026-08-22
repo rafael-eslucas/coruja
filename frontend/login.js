@@ -20,8 +20,8 @@ form.addEventListener("submit", async event => {
 
     const logged = await response.json();
 
-    console.log(logged.authorized);
-    if (logged.success) {
+    console.log(logged);
+    if (logged.authorized) {
         window.location.href = "/pacientes";
     }
 });

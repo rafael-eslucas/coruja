@@ -19,6 +19,22 @@ const server = (0, node_http_1.createServer)(async (req, res) => {
         res.end(html);
         return;
     }
+    if (req.method === "GET" && req.url === "/images/logo.jpg") {
+        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "images/logo.jpg"));
+        res.writeHead(200, {
+            "Content-Type": "image/jpeg"
+        });
+        res.end(html);
+        return;
+    }
+    if (req.method === "GET" && req.url === "/style.css") {
+        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "style.css"), "utf8");
+        res.writeHead(200, {
+            "Content-Type": "text/css"
+        });
+        res.end(html);
+        return;
+    }
     if (req.method === "GET" && req.url === "/login") {
         const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "login.html"), "utf8");
         res.writeHead(200, {
@@ -56,7 +72,7 @@ const server = (0, node_http_1.createServer)(async (req, res) => {
         }));
     }
     if (req.method === "GET" && req.url === "/api/db") {
-        const answer = await db_js_1.default.query("SELECT * FROM usuarios");
+        const answer = await db_js_1.default.query("SELECT * FROM users");
         res.writeHead(200, {
             "Content-Type": "application/json"
         });
@@ -71,9 +87,9 @@ const server = (0, node_http_1.createServer)(async (req, res) => {
         req.on("end", async () => {
             const dados = JSON.parse(body);
             console.log(dados);
-            let users = await db_js_1.default.query("SELECT * FROM usuarios WHERE login = ?", [dados.login]);
+            let users = await db_js_1.default.query("SELECT * FROM users WHERE login = ?", [dados.login]);
             let answer = {
-                "success": false
+                "authorized": false
             };
             for (const user of users) {
                 if (dados.login === user.login && dados.password === user.password) {
@@ -85,7 +101,7 @@ const server = (0, node_http_1.createServer)(async (req, res) => {
                         "Set-Cookie": `session=${session}; Path=/; HttpOnly; SameSite=Lax`
                     });
                     answer = {
-                        "success": true
+                        "authorized": true
                     };
                     res.end(JSON.stringify(answer));
                     return;

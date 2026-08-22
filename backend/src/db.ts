@@ -2,9 +2,9 @@ import mariadb from "mariadb";
 
 const pool = mariadb.createPool({
     host: "localhost",
-    user: "cvet",
+    user: "coruja",
     password: "penne",
-    database: "cvet",
+    database: "coruja",
     connectionLimit: 5
 });
 

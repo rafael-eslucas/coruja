@@ -6,9 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mariadb_1 = __importDefault(require("mariadb"));
 const pool = mariadb_1.default.createPool({
     host: "localhost",
-    user: "cvet",
+    user: "coruja",
     password: "penne",
-    database: "cvet",
+    database: "coruja",
     connectionLimit: 5
 });
 exports.default = pool;

@@ -1,0 +1,30 @@
+body {
+    margin: 0px;
+    background-color: #FFFFFF;
+}
+
+section, nav {
+    padding: 0 10%;
+}
+
+
+nav {
+    position: sticky;
+    height: 10vh;
+}
+
+nav img {
+    height: 100%;
+}
+
+.line {
+    display: flex;
+    justify-content: space-between;
+}
+
+#servicos img {
+    width: 100%;
+}
+#servicos .line div {
+    width: 20vw;
+}

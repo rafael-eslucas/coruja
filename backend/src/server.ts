@@ -21,6 +21,29 @@ const server = createServer(async (req, res) => {
         res.end(html);
         return;
     }
+    if (req.method === "GET" && req.url === "/images/logo.jpg") {
+        const html = await readFile(
+            join(frontend, "images/logo.jpg")
+        )
+
+        res.writeHead(200, {
+            "Content-Type": "image/jpeg"
+        });
+        res.end(html);
+        return;
+    }
+    if (req.method === "GET" && req.url === "/style.css") {
+        const html = await readFile(
+            join(frontend, "style.css"),
+            "utf8"
+        )
+
+        res.writeHead(200, {
+            "Content-Type": "text/css"
+        });
+        res.end(html);
+        return;
+    }
     if (req.method === "GET" && req.url === "/login") {
         const html = await readFile(
             join(frontend, "login.html"),
@@ -73,7 +96,7 @@ const server = createServer(async (req, res) => {
     }
 
     if (req.method === "GET" && req.url === "/api/db") {
-        const answer = await pool.query("SELECT * FROM usuarios");
+        const answer = await pool.query("SELECT * FROM users");
         res.writeHead(200, {
             "Content-Type": "application/json"
         });
@@ -92,7 +115,7 @@ const server = createServer(async (req, res) => {
             const dados = JSON.parse(body);
 
             console.log(dados);
-            let users = await pool.query("SELECT * FROM usuarios WHERE login = ?", [dados.login]);
+            let users = await pool.query("SELECT * FROM users WHERE login = ?", [dados.login]);
             let answer = {
                 "authorized": false
             };
