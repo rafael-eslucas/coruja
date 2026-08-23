@@ -11,6 +11,7 @@ const db_js_1 = __importDefault(require("./db.js"));
 const frontend = (0, node_path_1.join)(process.cwd(), "../frontend");
 let sessoes = new Map();
 const server = (0, node_http_1.createServer)(async (req, res) => {
+    console.log("serving", req.method, req.url);
     if (req.method === "GET" && req.url === "/") {
         const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "index.html"), "utf8");
         res.writeHead(200, {
@@ -113,7 +114,7 @@ const server = (0, node_http_1.createServer)(async (req, res) => {
         }));
         return;
     }
-    if (req.method === "POST" && req.url === "/api/patients") {
+    if (req.method === "POST" && req.url === "/api/addpatient") {
         let body = "";
         req.on("data", chunk => {
             body += chunk;
@@ -152,6 +153,48 @@ const server = (0, node_http_1.createServer)(async (req, res) => {
                 console.log(notes);
                 console.log(owner);
                 await db_js_1.default.query("INSERT INTO patients (name, specie, breed, birth, owner_id, notes) VALUES (?, ?, ?, ?, ?, ?)", [name, species, breed, birth, owner, notes]);
+                res.writeHead(201, {
+                    "Content-Type": "application/json"
+                });
+                res.end(JSON.stringify({
+                    "error": null
+                }));
+                return;
+            }
+            res.writeHead(401, {
+                "Content-Type": "application/json"
+            });
+            res.end(JSON.stringify({
+                "authorized": false
+            }));
+            return;
+        });
+    }
+    if (req.method === "POST" && req.url === "/api/addowner") {
+        console.log("owning");
+        let body = "";
+        req.on("data", chunk => {
+            body += chunk;
+        });
+        req.on("end", async () => {
+            const owner = JSON.parse(body);
+            const cookie = req.headers.cookie;
+            const session = cookie?.split("; ").find(c => c.startsWith("session="))?.split("=")[1];
+            if (session && sessoes.has(session)) {
+                const name = owner.name;
+                const phone = owner.phone;
+                const city = owner.city;
+                const neighborhood = owner.neighborhood;
+                const street = owner.street;
+                const number = owner.number;
+                console.log(name);
+                console.log(phone);
+                console.log(city);
+                console.log(neighborhood);
+                console.log(street);
+                console.log(number);
+                console.log(owner);
+                await db_js_1.default.query("INSERT INTO owners (name, phone, city, neighborhood, street, number) VALUES (?, ?, ?, ?, ?, ?)", [name, phone, city, neighborhood, street, number]);
                 res.writeHead(201, {
                     "Content-Type": "application/json"
                 });
