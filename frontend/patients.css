@@ -1,0 +1,7 @@
+section .line {
+    align-items: start;
+}
+
+.column {
+    width: 35vw;
+}

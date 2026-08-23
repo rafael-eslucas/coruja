@@ -1,21 +1,19 @@
-import { createServer, IncomingMessage } from "node:http";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
-import { randomBytes } from "node:crypto";
-import pool from "./db.js";
-
-const frontend = join(process.cwd(), "../frontend");
-
-let sessoes = new Map<string, number>();
-
-const server = createServer(async (req, res) => {
-    console.log("serving", req.method, req.url)
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const node_http_1 = require("node:http");
+const promises_1 = require("node:fs/promises");
+const node_path_1 = require("node:path");
+const node_crypto_1 = require("node:crypto");
+const db_js_1 = __importDefault(require("./db.js"));
+const frontend = (0, node_path_1.join)(process.cwd(), "../frontend");
+let sessoes = new Map();
+const server = (0, node_http_1.createServer)(async (req, res) => {
+    console.log("serving", req.method, req.url);
     if (req.method === "GET" && req.url === "/") {
-        const html = await readFile(
-            join(frontend, "index.html"),
-            "utf8"
-        )
-
+        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "index.html"), "utf8");
         res.writeHead(200, {
             "Content-Type": "text/html"
         });
@@ -23,10 +21,7 @@ const server = createServer(async (req, res) => {
         return;
     }
     if (req.method === "GET" && req.url === "/images/logo.jpg") {
-        const html = await readFile(
-            join(frontend, "images/logo.jpg")
-        )
-
+        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "images/logo.jpg"));
         res.writeHead(200, {
             "Content-Type": "image/jpeg"
         });
@@ -34,11 +29,7 @@ const server = createServer(async (req, res) => {
         return;
     }
     if (req.method === "GET" && req.url === "/style.css") {
-        const html = await readFile(
-            join(frontend, "style.css"),
-            "utf8"
-        )
-
+        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "style.css"), "utf8");
         res.writeHead(200, {
             "Content-Type": "text/css"
         });
@@ -46,11 +37,7 @@ const server = createServer(async (req, res) => {
         return;
     }
     if (req.method === "GET" && req.url === "/index.css") {
-        const html = await readFile(
-            join(frontend, "index.css"),
-            "utf8"
-        )
-
+        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "index.css"), "utf8");
         res.writeHead(200, {
             "Content-Type": "text/css"
         });
@@ -58,11 +45,7 @@ const server = createServer(async (req, res) => {
         return;
     }
     if (req.method === "GET" && req.url === "/login.css") {
-        const html = await readFile(
-            join(frontend, "login.css"),
-            "utf8"
-        )
-
+        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "login.css"), "utf8");
         res.writeHead(200, {
             "Content-Type": "text/css"
         });
@@ -70,11 +53,7 @@ const server = createServer(async (req, res) => {
         return;
     }
     if (req.method === "GET" && req.url === "/patients.css") {
-        const html = await readFile(
-            join(frontend, "patients.css"),
-            "utf8"
-        )
-
+        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "patients.css"), "utf8");
         res.writeHead(200, {
             "Content-Type": "text/css"
         });
@@ -82,11 +61,7 @@ const server = createServer(async (req, res) => {
         return;
     }
     if (req.method === "GET" && req.url === "/login") {
-        const html = await readFile(
-            join(frontend, "login.html"),
-            "utf8"
-        )
-
+        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "login.html"), "utf8");
         res.writeHead(200, {
             "Content-Type": "text/html"
         });
@@ -94,11 +69,7 @@ const server = createServer(async (req, res) => {
         return;
     }
     if (req.method === "GET" && req.url === "/login.js") {
-        const js = await readFile(
-            join(frontend, "login.js"),
-            "utf8"
-        )
-
+        const js = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "login.js"), "utf8");
         res.writeHead(200, {
             "Content-Type": "text/javascript"
         });
@@ -106,11 +77,7 @@ const server = createServer(async (req, res) => {
         return;
     }
     if (req.method === "GET" && req.url === "/patients.js") {
-        const js = await readFile(
-            join(frontend, "patients.js"),
-            "utf8"
-        )
-
+        const js = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "patients.js"), "utf8");
         res.writeHead(200, {
             "Content-Type": "text/javascript"
         });
@@ -120,13 +87,8 @@ const server = createServer(async (req, res) => {
     if (req.method === "GET" && req.url === "/patients") {
         const cookie = req.headers.cookie;
         const session = cookie?.split("; ").find(c => c.startsWith("session="))?.split("=")[1];
-
         if (session && sessoes.has(session)) {
-            const html = await readFile(
-                join(frontend, "patients.html"),
-                "utf8"
-            )
-
+            const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "patients.html"), "utf8");
             res.writeHead(200, {
                 "Content-Type": "text/html"
             });
@@ -140,7 +102,6 @@ const server = createServer(async (req, res) => {
             "authorized": false
         }));
     }
-    
     if (req.method === "GET" && req.url === "/api/patients") {
         if (!verifyCookie(req)) {
             res.writeHead(401, {
@@ -151,7 +112,7 @@ const server = createServer(async (req, res) => {
             }));
             return;
         }
-        const patients = await pool.query("SELECT * FROM patients");
+        const patients = await db_js_1.default.query("SELECT * FROM patients");
         res.writeHead(200, {
             "Content-Type": "application/json"
         });
@@ -160,11 +121,9 @@ const server = createServer(async (req, res) => {
     }
     if (req.method === "POST" && req.url === "/api/addpatient") {
         let body = "";
-
         req.on("data", chunk => {
             body += chunk;
         });
-
         req.on("end", async () => {
             if (!verifyCookie(req)) {
                 res.writeHead(401, {
@@ -175,36 +134,29 @@ const server = createServer(async (req, res) => {
                 }));
                 return;
             }
-
             const patient = JSON.parse(body);
             const owner = patient.owner_id;
             if (owner == 0) {
                 res.writeHead(400, {
                     "Content-Type": "application/json"
                 });
-                res.end(JSON.stringify({"error": "no owner"}));
+                res.end(JSON.stringify({ "error": "no owner" }));
                 return;
             }
-            const database_owner = await pool.query("SELECT * FROM owners WHERE id = ?", [owner]);
+            const database_owner = await db_js_1.default.query("SELECT * FROM owners WHERE id = ?", [owner]);
             if (database_owner.length === 0) {
                 res.writeHead(400, {
                     "Content-Type": "application/json"
                 });
-                res.end(JSON.stringify({"error": "no owner"}));
+                res.end(JSON.stringify({ "error": "no owner" }));
                 return;
-            } 
-                
+            }
             const name = patient.name;
             const species = patient.species;
             const breed = patient.breed;
             const birth = patient.birth;
             const notes = patient.notes;
-
-            await pool.query(
-                "INSERT INTO patients (name, species, breed, birth, owner_id, notes) VALUES (?, ?, ?, ?, ?, ?)",
-                [name, species, breed, birth, owner, notes]
-            );
-
+            await db_js_1.default.query("INSERT INTO patients (name, species, breed, birth, owner_id, notes) VALUES (?, ?, ?, ?, ?, ?)", [name, species, breed, birth, owner, notes]);
             res.writeHead(201, {
                 "Content-Type": "application/json"
             });
@@ -215,24 +167,21 @@ const server = createServer(async (req, res) => {
         });
     }
     if (req.method === "POST" && req.url === "/api/addowner") {
-        console.log("owning")
+        console.log("owning");
         let body = "";
-
         req.on("data", chunk => {
             body += chunk;
         });
-
         req.on("end", async () => {
             if (!verifyCookie(req)) {
                 res.writeHead(401, {
-                "Content-Type": "application/json"
-            });
-            res.end(JSON.stringify({
-                "authorized": false
-            }));
-            return;
+                    "Content-Type": "application/json"
+                });
+                res.end(JSON.stringify({
+                    "authorized": false
+                }));
+                return;
             }
-
             const owner = JSON.parse(body);
             const name = owner.name;
             const phone = owner.phone;
@@ -240,12 +189,7 @@ const server = createServer(async (req, res) => {
             const neighborhood = owner.neighborhood;
             const street = owner.street;
             const number = owner.number;
-
-            await pool.query(
-                "INSERT INTO owners (name, phone, city, neighborhood, street, number) VALUES (?, ?, ?, ?, ?, ?)",
-                [name, phone, city, neighborhood, street, number]
-            );
-
+            await db_js_1.default.query("INSERT INTO owners (name, phone, city, neighborhood, street, number) VALUES (?, ?, ?, ?, ?, ?)", [name, phone, city, neighborhood, street, number]);
             res.writeHead(201, {
                 "Content-Type": "application/json"
             });
@@ -258,50 +202,43 @@ const server = createServer(async (req, res) => {
     if (req.method === "POST" && req.url === "/api/getpatient") {
         console.log("getpatienting");
         let body = "";
-
         req.on("data", chunk => {
             body += chunk;
         });
-
         req.on("end", async () => {
             const data = JSON.parse(body);
             if (!verifyCookie(req)) {
                 res.writeHead(401, {
                     "Content-TYpe": "application/json"
-                })
+                });
                 res.end({
                     "authorized": false
-                })
+                });
                 return;
             }
-            
-            const patients = await pool.query(`SELECT * FROM patients WHERE ${data.row} = ? `, [data.value]);
+            const patients = await db_js_1.default.query(`SELECT * FROM patients WHERE ${data.row} = ? `, [data.value]);
             res.writeHead(200, {
                 "Content-Type": "application/json"
             });
             res.end(JSON.stringify(patients));
             console.log(patients);
-
         });
     }
     if (req.method === "POST" && req.url === "/api/login") {
         let body = "";
-
         req.on("data", (chunk) => {
             body += chunk;
         });
-
         req.on("end", async () => {
             const dados = JSON.parse(body);
-
             console.log(dados);
-            let users = await pool.query("SELECT * FROM users WHERE login = ?", [dados.login]);
+            let users = await db_js_1.default.query("SELECT * FROM users WHERE login = ?", [dados.login]);
             let answer = {
                 "authorized": false
             };
             for (const user of users) {
                 if (dados.login === user.login && dados.password === user.password) {
-                    let session: string = randomBytes(32).toString("hex");
+                    let session = (0, node_crypto_1.randomBytes)(32).toString("hex");
                     sessoes.set(session, user.id);
                     console.log(`Criando sessão: ${session}`);
                     res.writeHead(200, {
@@ -310,7 +247,7 @@ const server = createServer(async (req, res) => {
                     });
                     answer = {
                         "authorized": true
-                    }
+                    };
                     res.end(JSON.stringify(answer));
                     return;
                 }
@@ -322,15 +259,10 @@ const server = createServer(async (req, res) => {
         });
     }
 });
-
 server.listen(3000, () => {
     console.log("Serviço rodando em localhost:3000");
 });
-
-
-
-
-function verifyCookie(req: IncomingMessage): boolean {
+function verifyCookie(req) {
     const cookie = req.headers.cookie;
     const session = cookie?.split("; ").find(c => c.startsWith("session="))?.split("=")[1];
     return !!(session && sessoes.has(session));
