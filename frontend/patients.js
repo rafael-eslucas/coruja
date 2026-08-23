@@ -104,3 +104,57 @@ getpatient.addEventListener("submit", async event => {
         answer?.appendChild(owner);
     });
 });
+
+gettutor.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+
+    const info = {
+        "row": form.row.value,
+        "value": form.value.value
+    }
+
+    const response = await fetch("/api/gettutor", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(info)
+    });
+
+    const text = await response.text();
+    const tutors = JSON.parse(text);
+
+    const answer = document.querySelector("#answer");
+    answer.innerHTML = "";
+    tutors.forEach(tutor => {
+        const title = document.createElement("h2");
+        title.textContent = tutor.name;
+        answer?.appendChild(title);
+
+        const id = document.createElement("p");
+        id.textContent = `id = ${tutor.id}`;
+        answer?.appendChild(id);
+        
+        const phone = document.createElement("p");
+        phone.textContent = `Telefone = ${tutor.phone}`;
+        answer?.appendChild(phone);
+        
+        const city = document.createElement("p");
+        city.textContent = `Cidade = ${tutor.city}`;
+        answer?.appendChild(city);
+        
+        const neighborhood = document.createElement("p");
+        neighborhood.textContent = `Bairro = ${tutor.neighborhood}`;
+        answer?.appendChild(neighborhood);
+        
+        const street = document.createElement("p");
+        street.textContent = `Rua = ${tutor.street}`;
+        answer?.appendChild(street);
+
+        const number = document.createElement("p");
+        number.textContent = `number = ${tutor.number}`;
+        answer?.appendChild(number);
+    });
+});

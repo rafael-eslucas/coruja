@@ -275,12 +275,41 @@ const server = createServer(async (req, res) => {
                 return;
             }
             
-            const patients = await pool.query(`SELECT * FROM patients WHERE ${data.row} = ? `, [data.value]);
+            const patients = await pool.query(`SELECT * FROM patients WHERE ${data.row} LIKE ? `, [`%${data.value}%`]);
             res.writeHead(200, {
                 "Content-Type": "application/json"
             });
             res.end(JSON.stringify(patients));
             console.log(patients);
+
+        });
+    }
+    if (req.method === "POST" && req.url === "/api/gettutor") {
+        console.log("gettutoring");
+        let body = "";
+
+        req.on("data", chunk => {
+            body += chunk;
+        });
+
+        req.on("end", async () => {
+            const data = JSON.parse(body);
+            if (!verifyCookie(req)) {
+                res.writeHead(401, {
+                    "Content-TYpe": "application/json"
+                })
+                res.end({
+                    "authorized": false
+                })
+                return;
+            }
+            
+            const tutors = await pool.query(`SELECT * FROM owners WHERE ${data.row} LIKE ? `, [`%${data.value}%`]);
+            res.writeHead(200, {
+                "Content-Type": "application/json"
+            });
+            res.end(JSON.stringify(tutors));
+            console.log(tutors);
 
         });
     }
