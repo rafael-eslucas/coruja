@@ -3,6 +3,17 @@ body {
     background-color: #FFFFFF;
 }
 
+a {
+    background-color: #397373;
+    border-radius: 10px;
+    padding: max(1.5vh, 15px);
+    text-decoration: none;
+    color: #FFFFFF;
+}
+a:hover {
+    color: #F0F0F0;
+}
+
 section, nav {
     padding: 0 10%;
 }
@@ -10,21 +21,37 @@ section, nav {
 
 nav {
     position: sticky;
-    height: 10vh;
+    height: max(10vh, 100px);
+    align-items: center;
+    padding: 2vh 10%;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
 }
 
 nav img {
     height: 100%;
 }
 
+nav div {
+    gap: 5vw;
+}
+
+
 .line {
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
-
-#servicos img {
-    width: 100%;
+.card * {
+    margin: 0;
+    text-align: center;
 }
-#servicos .line div {
-    width: 20vw;
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 3vh;
+    padding: 2vh;
+    margin-bottom: 2vh;
+    border-style: solid;
+    border-radius: 15px;
 }

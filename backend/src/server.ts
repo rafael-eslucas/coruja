@@ -44,6 +44,30 @@ const server = createServer(async (req, res) => {
         res.end(html);
         return;
     }
+    if (req.method === "GET" && req.url === "/index.css") {
+        const html = await readFile(
+            join(frontend, "index.css"),
+            "utf8"
+        )
+
+        res.writeHead(200, {
+            "Content-Type": "text/css"
+        });
+        res.end(html);
+        return;
+    }
+    if (req.method === "GET" && req.url === "/login.css") {
+        const html = await readFile(
+            join(frontend, "login.css"),
+            "utf8"
+        )
+
+        res.writeHead(200, {
+            "Content-Type": "text/css"
+        });
+        res.end(html);
+        return;
+    }
     if (req.method === "GET" && req.url === "/login") {
         const html = await readFile(
             join(frontend, "login.html"),
@@ -68,16 +92,26 @@ const server = createServer(async (req, res) => {
         res.end(js);
         return;
     }
+    if (req.method === "GET" && req.url === "/patients.js") {
+        const js = await readFile(
+            join(frontend, "patients.js"),
+            "utf8"
+        )
 
-    if (req.method === "GET" && req.url === "/pacientes") {
+        res.writeHead(200, {
+            "Content-Type": "text/javascript"
+        });
+        res.end(js);
+        return;
+    }
+
+    if (req.method === "GET" && req.url === "/patients") {
         const cookie = req.headers.cookie;
         const session = cookie?.split("; ").find(c => c.startsWith("session="))?.split("=")[1];
-        console.log(`Sessão: ${session}`);
-        console.log(`Cookie: ${cookie}`);
 
         if (session && sessoes.has(session)) {
             const html = await readFile(
-                join(frontend, "pacientes.html"),
+                join(frontend, "patients.html"),
                 "utf8"
             )
 
@@ -95,13 +129,89 @@ const server = createServer(async (req, res) => {
         }));
     }
 
-    if (req.method === "GET" && req.url === "/api/db") {
-        const answer = await pool.query("SELECT * FROM users");
-        res.writeHead(200, {
+    if (req.method === "GET" && req.url === "/api/patients") {
+        const cookie = req.headers.cookie;
+        const session = cookie?.split("; ").find(c => c.startsWith("session="))?.split("=")[1];
+        if (session && sessoes.has(session)) {
+            const patients = await pool.query("SELECT * FROM patients");
+            res.writeHead(200, {
+                "Content-Type": "application/json"
+            });
+            patients.authorized = true;
+            res.end(JSON.stringify(patients));
+            return;
+        }
+        res.writeHead(401, {
             "Content-Type": "application/json"
         });
-        res.end(JSON.stringify(answer));
+        res.end(JSON.stringify({
+            "authorized": false
+        }));
         return;
+    }
+    if (req.method === "POST" && req.url === "/api/patients") {
+        let body = "";
+
+        req.on("data", chunk => {
+            body += chunk;
+        });
+
+        req.on("end", async () => {
+            const data = JSON.parse(body);
+            const cookie = req.headers.cookie;
+            const session = cookie?.split("; ").find(c => c.startsWith("session="))?.split("=")[1];
+            if (session && sessoes.has(session)) {
+                const patient = data;
+                const owner = patient.owner_id;
+                if (owner == 0) {
+                    res.writeHead(400, {
+                        "Content-Type": "application/json"
+                    });
+                    res.end(JSON.stringify({"error": "no owner"}));
+                    return;
+                }
+                const database_owner = await pool.query("SELECT * FROM owners WHERE id = ?", [owner]);
+                if (database_owner.length === 0) {
+                    res.writeHead(400, {
+                        "Content-Type": "application/json"
+                    });
+                    res.end(JSON.stringify({"error": "no owner"}));
+                    return;
+                } 
+                
+                const name = patient.name;
+                const species = patient.species;
+                const breed = patient.breed;
+                const birth = patient.birth;
+                const notes = patient.notes;
+                console.log(name);
+                console.log(species);
+                console.log(breed);
+                console.log(birth);
+                console.log(notes);
+                console.log(owner);
+
+                await pool.query(
+                    "INSERT INTO patients (name, specie, breed, birth, owner_id, notes) VALUES (?, ?, ?, ?, ?, ?)",
+                    [name, species, breed, birth, owner, notes]
+                );
+
+                res.writeHead(201, {
+                    "Content-Type": "application/json"
+                });
+                res.end(JSON.stringify({
+                    "error": null
+                }));
+                return;
+            }
+            res.writeHead(401, {
+                "Content-Type": "application/json"
+            });
+            res.end(JSON.stringify({
+                "authorized": false
+            }));
+            return;
+        });
     }
 
     if (req.method === "POST" && req.url === "/api/login") {

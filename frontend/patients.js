@@ -6,11 +6,15 @@ form.addEventListener("submit", async event => {
     const form = event.currentTarget;
 
     const info = {
-        "login": form.login.value,
-        "password": form.password.value
+        "name": form.name.value,
+        "species": form.species.value,
+        "breed": form.breed.value,
+        "birth": form.birth.value,
+        "notes": form.notes.value,
+        "owner_id": form.owner.value
     };
 
-    const response = await fetch("/api/login", {
+    const response = await fetch("/api/patients", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -18,9 +22,9 @@ form.addEventListener("submit", async event => {
         body: JSON.stringify(info)
     });
 
-    const logged = await response.json();
+    const made = await response.json();
 
-    console.log(logged);
+    console.log(made.success);
     if (logged.authorized) {
         window.location.href = "/patients";
     }

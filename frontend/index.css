@@ -1,0 +1,17 @@
+#hero {
+    background-color: #397373;
+}
+#hero div {
+    width: 30vw;
+    padding: 10vw 0;
+}
+
+#servicos {
+    margin: 5vh 0;
+}
+#servicos img {
+    width: 100%;
+}
+#servicos .line div {
+    width: 20vw;
+}
