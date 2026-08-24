@@ -10,4 +10,4 @@
 /dataSources.local.xml
 
 node_modules/
-.env
+backend/.env
