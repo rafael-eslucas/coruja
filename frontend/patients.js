@@ -2,6 +2,8 @@ const addpatient = document.querySelector("#addpatient");
 const addtutor = document.querySelector("#addtutor");
 const getpatient = document.querySelector("#getpatient");
 const gettutor = document.querySelector("#gettutor");
+const editpatient = document.querySelector("#editpatient");
+const edittutor = document.querySelector("#edittutor");
 
 addpatient.addEventListener("submit", async event => {
     event.preventDefault();
@@ -48,6 +50,7 @@ addtutor.addEventListener("submit", async event => {
         body: JSON.stringify(info)
     });
 });
+
 
 getpatient.addEventListener("submit", async event => {
     event.preventDefault();
@@ -156,5 +159,54 @@ gettutor.addEventListener("submit", async event => {
         const number = document.createElement("p");
         number.textContent = `number = ${tutor.number}`;
         answer?.appendChild(number);
+    });
+});
+
+
+editpatient.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+
+    const info = {
+        "id": form.id.value,
+        "name": form.name.value,
+        "species": form.species.value,
+        "breed": form.breed.value,
+        "birth": form.birth.value === "" ? null : form.birth.value,
+        "notes": form.notes.value === "" ? null : form.notes.value,
+        "owner": form.owner.value
+    };
+
+    const response = await fetch("/api/editpatient", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(info)
+    });
+});
+
+edittutor.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+
+    const info = {
+        "id": form.id.value,
+        "name": form.name.value,
+        "phone": form.phone.value === "" ? null : form.phone.value,
+        "city": form.city.value,
+        "neighborhood": form.neighborhood.value,
+        "street": form.street.value,
+        "number": form.number.value
+    };
+
+    const response = await fetch("/api/edittutor", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(info)
     });
 });

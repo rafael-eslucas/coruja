@@ -10,78 +10,27 @@ const node_crypto_1 = require("node:crypto");
 const db_js_1 = __importDefault(require("./db.js"));
 const frontend = (0, node_path_1.join)(process.cwd(), "../frontend");
 let sessoes = new Map();
+const files = {
+    "/": ["index.html", "text/html"],
+    "/style.css": ["style.css", "text/css"],
+    "/index.css": ["index.css", "text/css"],
+    "/login.css": ["login.css", "text/css"],
+    "/patients.css": ["patients.css", "text/css"],
+    "/login.js": ["login.js", "text/javascript"],
+    "/patients.js": ["patients.js", "text/javascript"],
+    "/images/logo.jpg": ["images/logo.jpg", "image/jpeg"],
+    "/login": ["login.html", "text/html"]
+};
 const server = (0, node_http_1.createServer)(async (req, res) => {
     console.log("serving", req.method, req.url);
-    if (req.method === "GET" && req.url === "/") {
-        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "index.html"), "utf8");
+    const url = req.url;
+    if (req.method === "GET" && url && files[url]) {
+        const [file, contentType] = files[url];
+        const content = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, file));
         res.writeHead(200, {
-            "Content-Type": "text/html"
+            "Content-Type": contentType
         });
-        res.end(html);
-        return;
-    }
-    if (req.method === "GET" && req.url === "/images/logo.jpg") {
-        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "images/logo.jpg"));
-        res.writeHead(200, {
-            "Content-Type": "image/jpeg"
-        });
-        res.end(html);
-        return;
-    }
-    if (req.method === "GET" && req.url === "/style.css") {
-        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "style.css"), "utf8");
-        res.writeHead(200, {
-            "Content-Type": "text/css"
-        });
-        res.end(html);
-        return;
-    }
-    if (req.method === "GET" && req.url === "/index.css") {
-        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "index.css"), "utf8");
-        res.writeHead(200, {
-            "Content-Type": "text/css"
-        });
-        res.end(html);
-        return;
-    }
-    if (req.method === "GET" && req.url === "/login.css") {
-        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "login.css"), "utf8");
-        res.writeHead(200, {
-            "Content-Type": "text/css"
-        });
-        res.end(html);
-        return;
-    }
-    if (req.method === "GET" && req.url === "/patients.css") {
-        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "patients.css"), "utf8");
-        res.writeHead(200, {
-            "Content-Type": "text/css"
-        });
-        res.end(html);
-        return;
-    }
-    if (req.method === "GET" && req.url === "/login") {
-        const html = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "login.html"), "utf8");
-        res.writeHead(200, {
-            "Content-Type": "text/html"
-        });
-        res.end(html);
-        return;
-    }
-    if (req.method === "GET" && req.url === "/login.js") {
-        const js = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "login.js"), "utf8");
-        res.writeHead(200, {
-            "Content-Type": "text/javascript"
-        });
-        res.end(js);
-        return;
-    }
-    if (req.method === "GET" && req.url === "/patients.js") {
-        const js = await (0, promises_1.readFile)((0, node_path_1.join)(frontend, "patients.js"), "utf8");
-        res.writeHead(200, {
-            "Content-Type": "text/javascript"
-        });
-        res.end(js);
+        res.end(content);
         return;
     }
     if (req.method === "GET" && req.url === "/patients") {
@@ -247,6 +196,85 @@ const server = (0, node_http_1.createServer)(async (req, res) => {
             });
             res.end(JSON.stringify(tutors));
             console.log(tutors);
+        });
+    }
+    if (req.method === "POST" && req.url === "/api/editpatient") {
+        console.log("editpatienting");
+        let body = "";
+        req.on("data", chunk => {
+            body += chunk;
+        });
+        req.on("end", async () => {
+            if (!verifyCookie(req)) {
+                res.writeHead(401, {
+                    "Content-Type": "application/json"
+                });
+                res.end(JSON.stringify({
+                    "authorized": false
+                }));
+                return;
+            }
+            const patient = JSON.parse(body);
+            console.log(body);
+            console.log(`id: ${patient.id}`);
+            const isthere = await db_js_1.default.query("SELECT * FROM patients WHERE id = ?", [patient.id]);
+            console.log(isthere);
+            if (isthere.length === 0) {
+                res.writeHead(400, {
+                    "Content-Type": "application/json"
+                });
+                res.end(JSON.stringify({ "error": "no patient to edit" }));
+                return;
+            }
+            const id = patient.id;
+            const name = patient.name;
+            const species = patient.species;
+            const breed = patient.breed;
+            const birth = patient.birth;
+            const notes = patient.notes;
+            const owner = patient.owner;
+            await db_js_1.default.query("UPDATE patients SET name = ?, species = ?, breed = ?, birth = ?, owner_id = ?, notes = ? WHERE id = ?", [name, species, breed, birth, owner, notes, id]);
+            res.writeHead(201, {
+                "Content-Type": "application/json"
+            });
+            res.end(JSON.stringify({
+                "error": null
+            }));
+            return;
+        });
+    }
+    if (req.method === "POST" && req.url === "/api/edittutor") {
+        console.log("editpatienting");
+        let body = "";
+        req.on("data", chunk => {
+            body += chunk;
+        });
+        req.on("end", async () => {
+            if (!verifyCookie(req)) {
+                res.writeHead(401, {
+                    "Content-Type": "application/json"
+                });
+                res.end(JSON.stringify({
+                    "authorized": false
+                }));
+                return;
+            }
+            const owner = JSON.parse(body);
+            const id = owner.id;
+            const name = owner.name;
+            const phone = owner.phone;
+            const city = owner.city;
+            const neighborhood = owner.neighborhood;
+            const street = owner.street;
+            const number = owner.number;
+            await db_js_1.default.query("UPDATE owners SET name = ?, phone = ?, city = ?, neighborhood = ?, street = ?, number = ? WHERE id = ?", [name, phone, city, neighborhood, street, number, id]);
+            res.writeHead(201, {
+                "Content-Type": "application/json"
+            });
+            res.end(JSON.stringify({
+                "error": null
+            }));
+            return;
         });
     }
     if (req.method === "POST" && req.url === "/api/login") {
