@@ -7,7 +7,7 @@ const mariadb_1 = __importDefault(require("mariadb"));
 const pool = mariadb_1.default.createPool({
     host: "localhost",
     user: "coruja",
-    password: "penne",
+    password: process.env.DB_PASSWORD,
     database: "coruja",
     connectionLimit: 5
 });
